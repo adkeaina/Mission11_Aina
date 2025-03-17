@@ -5,7 +5,6 @@ export default function BookList() {
     const [books, setBooks] = useState<Book[]>([]);
     const [pageSize, setPageSize] = useState<number>(5);
     const [pageNumber, setPageNumber] = useState<number>(1);
-    const [totalBooks, setTotalBooks] = useState<number>(0);
     const [totalPages, setTotalPages] = useState<number>(0);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // New state for sorting
 
@@ -14,7 +13,6 @@ export default function BookList() {
             const response = await fetch(`https://localhost:5000/api/Book/AllBooks?pageSize=${pageSize}&pageNumber=${pageNumber}`);
             const data = await response.json();
             setBooks(data.books);
-            setTotalBooks(data.bookCount);
             setTotalPages(data.pageCount);
         }
 
