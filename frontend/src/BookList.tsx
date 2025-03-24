@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Book } from "./types/Book";
-export default function BookList() {
+export default function BookList({selectedCategories} :  {selectedCategories: string[]}) {
     const [books, setBooks] = useState<Book[]>([]);
     const [pageSize, setPageSize] = useState<number>(5);
     const [pageNumber, setPageNumber] = useState<number>(1);
@@ -9,7 +9,10 @@ export default function BookList() {
 
     useEffect(() => {
         const fetchBooks = async () => {
-            const response = await fetch(`https://localhost:5000/api/Book/AllBooks?pageSize=${pageSize}&pageNumber=${pageNumber}`,
+            const categoryParams = selectedCategories
+                .map((c) => `categories=${encodeURIComponent(c)}`)
+                .join('&');
+            const response = await fetch(`https://localhost:5000/api/Book/AllBooks?pageSize=${pageSize}&pageNumber=${pageNumber}${selectedCategories.length ? `&${categoryParams}` : ''}`,
                 {
                     credentials: 'include',
                 }
@@ -20,7 +23,7 @@ export default function BookList() {
         }
 
         fetchBooks();
-    }, [pageSize, pageNumber]);
+    }, [pageSize, pageNumber, totalPages, selectedCategories]);
 
     // Function to sort books by title
     const sortedBooks = [...books].sort((a, b) => {
@@ -33,8 +36,6 @@ export default function BookList() {
 
     return (
         <>
-            <br />
-            <h1>Book List</h1>
             <div className="container mt-5">
                 <div className="d-grid gap-4" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
                     {sortedBooks && sortedBooks.map((book) => (
