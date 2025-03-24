@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Book } from "./types/Book";
-
 export default function BookList() {
     const [books, setBooks] = useState<Book[]>([]);
     const [pageSize, setPageSize] = useState<number>(5);
@@ -10,7 +9,11 @@ export default function BookList() {
 
     useEffect(() => {
         const fetchBooks = async () => {
-            const response = await fetch(`https://localhost:5000/api/Book/AllBooks?pageSize=${pageSize}&pageNumber=${pageNumber}`);
+            const response = await fetch(`https://localhost:5000/api/Book/AllBooks?pageSize=${pageSize}&pageNumber=${pageNumber}`,
+                {
+                    credentials: 'include',
+                }
+            );
             const data = await response.json();
             setBooks(data.books);
             setTotalPages(data.pageCount);

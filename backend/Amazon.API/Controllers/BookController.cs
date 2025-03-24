@@ -14,6 +14,16 @@ public class BookController : ControllerBase
     [HttpGet("AllBooks")]
     public IActionResult GetBooks(int pageSize = 10, int pageNumber = 1)
     {
+        string? favProjType = Request.Cookies["FavoriteProjectType"];
+        Console.WriteLine("~~~~~~~~~~~COOKIE~~~~~~~~~~~~~~~~~~~\n" + favProjType);
+        HttpContext.Response.Cookies.Append("FavoriteProjectType", "Borehole Well and Hand Pump", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTime.Now.AddMinutes(1)
+        });
+        
         var booklist = _context.Books
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
