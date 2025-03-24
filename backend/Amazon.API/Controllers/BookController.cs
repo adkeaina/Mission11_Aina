@@ -12,7 +12,7 @@ public class BookController : ControllerBase
     public BookController(BookstoreContext context) => _context = context;
 
     [HttpGet("AllBooks")]
-    public IActionResult GetBooks(int pageSize = 10, int pageNumber = 1)
+    public IActionResult GetBooks(int pageSize = 10, int pageNumber = 1, [FromQuery] List<string> categories = null)
     {
         string? favProjType = Request.Cookies["FavoriteProjectType"];
         Console.WriteLine("~~~~~~~~~~~COOKIE~~~~~~~~~~~~~~~~~~~\n" + favProjType);
@@ -23,14 +23,20 @@ public class BookController : ControllerBase
             SameSite = SameSiteMode.Strict,
             Expires = DateTime.Now.AddMinutes(1)
         });
+        IQueryable<Book> query = _context.Books.AsQueryable();
+
+        if (categories is not null && categories.Any())
+        {
+            query =  query.Where(b => categories.Contains(b.Category));
+        }
         
-        var booklist = _context.Books
+        var bookCount = query.Count();
+        
+        var booklist = query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToList();
-
-        var bookCount = _context.Books.Count();
-
+        
         var pageCount = (int)Math.Ceiling((double)bookCount / pageSize);
 
         var someObject = new
@@ -41,5 +47,15 @@ public class BookController : ControllerBase
         };
 
         return Ok(someObject);
+    }
+    
+    [HttpGet("GetBookCategories")]
+    public IActionResult GetBookCategories()
+    {
+        var bookTypes = _context.Books
+            .Select(b => b.Category)
+            .Distinct()
+            .ToList();
+        return Ok(bookTypes);
     }
 }
