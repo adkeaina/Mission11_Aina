@@ -1,34 +1,25 @@
-import { useState } from 'react';
 import './App.css'
-import BookList from './BookList'
-import CategoryFilter from './components/CategoryFilter';
-import FingerPrint from './FingerPrint';
-
+import BookListPage from './pages/BookListPage'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import CartConfirmationPage from './pages/CartConfirmationPage'
+import CartPage from './pages/CartPage'
+import { CartProvider } from './context/CartContext'
+import BookPage from './pages/BookPage'
 
 function App() {
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-
   return (
     <>
-      <div className='container'>
-        <div className='row bg-primary text-white'>
-            <h1 className='text-center p-4'>Book List</h1>
-        </div>
-        <div className='row'>
-          <div className='col-md-3'>
-            <CategoryFilter
-              selectedCategories={selectedCategories}
-              setSelectedCategories={setSelectedCategories}
-            />
-          </div>
-          <div className='col-md-6'>
-            <BookList selectedCategories={selectedCategories} />
-          </div>
-          <div className='col-md-3' />
-        </div>
-      </div>
-      <FingerPrint />
+    <CartProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<BookListPage />} />
+          <Route path="/book/:bookId" element={<BookPage />} />
+          <Route path="/confirmation/:title/:quantity" element={<CartConfirmationPage />} />
+          <Route path="/cart" element={<CartPage />} />
+        </Routes>
+      </Router>
+    </CartProvider>
     </>
   )
 }

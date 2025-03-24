@@ -58,4 +58,15 @@ public class BookController : ControllerBase
             .ToList();
         return Ok(bookTypes);
     }
+
+    [HttpGet("GetBookById/{id}")]
+    public IActionResult GetBookById(int id)
+    {
+        var book = _context.Books.Find(id);
+        if (book is null)
+        {
+            return NotFound();
+        }
+        return Ok(book);
+    }
 }
