@@ -1,0 +1,26 @@
+# Build artifacts
+bin/
+obj/
+out/
+
+# User-specific files
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.sln.cache
+
+# Rider workspace settings
+*.DotSettings
+
+project.nuget.cache
+*.nuget.g.props
+*.nuget.g.targets
+
+*.cache
+*.pdb
+*.log
+*.sourcemap
+*.DS_Store
+*.swp
