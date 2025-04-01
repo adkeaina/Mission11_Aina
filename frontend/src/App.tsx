@@ -5,6 +5,7 @@ import CartConfirmationPage from './pages/CartConfirmationPage'
 import CartPage from './pages/CartPage'
 import { CartProvider } from './context/CartContext'
 import BookPage from './pages/BookPage'
+import AdminBooksPage from './pages/AdminBooksPage'
 
 function App() {
 
@@ -17,6 +18,8 @@ function App() {
           <Route path="/book/:bookId" element={<BookPage />} />
           <Route path="/confirmation/:title/:quantity" element={<CartConfirmationPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/admin" element={<AdminBooksPage />} />
+          <Route path="*" element={<h1>404 Not Found</h1>} />
         </Routes>
       </Router>
     </CartProvider>

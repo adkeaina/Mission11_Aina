@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Book } from "../types/Book";
 import { useNavigate } from "react-router-dom";
+import { fetchBooks } from "../api/BookAPI";
+import Pagination from "./Pagination";
 export default function BookList({selectedCategories} :  {selectedCategories: string[]}) {
     const [books, setBooks] = useState<Book[]>([]);
     const [pageSize, setPageSize] = useState<number>(5);
@@ -8,24 +10,33 @@ export default function BookList({selectedCategories} :  {selectedCategories: st
     const [totalPages, setTotalPages] = useState<number>(0);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // New state for sorting
     const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
-        const fetchBooks = async () => {
-            const categoryParams = selectedCategories
-                .map((c) => `categories=${encodeURIComponent(c)}`)
-                .join('&');
-            const response = await fetch(`https://localhost:5000/api/Book/AllBooks?pageSize=${pageSize}&pageNumber=${pageNumber}${selectedCategories.length ? `&${categoryParams}` : ''}`,
-                {
-                    credentials: 'include',
-                }
-            );
-            const data = await response.json();
-            setBooks(data.books);
-            setTotalPages(data.pageCount);
+        const loadBooks = async () => {
+            try {
+                setLoading(true);
+                const data = await fetchBooks(pageSize, pageNumber, selectedCategories);
+                setBooks(data.books);
+                setTotalPages(data.pageCount);
+            } catch (error) {
+                setError((error as Error).message);
+            } finally {
+                setLoading(false);
+            }
         }
 
-        fetchBooks();
-    }, [pageSize, pageNumber, totalPages, selectedCategories]);
+        loadBooks();
+    }, [pageSize, pageNumber, selectedCategories]);
+
+    if (loading) {
+        return <p>Loading books...</p>;
+    }
+
+    if (error) {
+        return <p className="text-danger">Error: {error}</p>;
+    }
 
     // Function to sort books by title
     const sortedBooks = [...books].sort((a, b) => {
@@ -62,54 +73,13 @@ export default function BookList({selectedCategories} :  {selectedCategories: st
                 </div>
             </div>
 
-            <div className="d-flex justify-content-center align-items-center mt-4">
-                <button
-                    className="btn btn-outline-primary mx-2 rounded-pill shadow-sm"
-                    disabled={pageNumber === 1}
-                    onClick={() => setPageNumber(pageNumber - 1)}
-                >
-                    Previous
-                </button>
-
-                {
-                    [...Array(totalPages)].map((_, index) => (
-                        <button
-                            key={index + 1}
-                            className={`btn mx-1 rounded-pill ${pageNumber === index + 1 ? 'btn-primary text-white' : 'btn-outline-secondary'}`}
-                            onClick={() => setPageNumber(index + 1)}
-                            disabled={pageNumber === index + 1}
-                        >
-                            {index + 1}
-                        </button>
-                    ))
-                }
-
-                <button
-                    className="btn btn-outline-primary mx-2 rounded-pill shadow-sm"
-                    disabled={pageNumber === totalPages}
-                    onClick={() => setPageNumber(pageNumber + 1)}
-                >
-                    Next
-                </button>
-            </div>
-
-            <div className="d-flex justify-content-center align-items-center mt-3">
-                <label className="form-label mb-0 mx-2">
-                    Results per page:
-                </label>
-                <select
-                    className="form-select form-select-sm rounded-pill shadow-sm w-auto"
-                    value={pageSize}
-                    onChange={(e) => {
-                        setPageSize(Number(e.target.value));
-                        setPageNumber(1); // Reset to first page when changing page size
-                    }}
-                >
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                </select>
-            </div>
+            <Pagination 
+                pageNumber={pageNumber}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                setPageNumber={setPageNumber}
+                setPageSize={setPageSize}
+            />
 
             <div className="d-flex justify-content-center align-items-center mt-4">
                 {/* Sorting Dropdown */}
