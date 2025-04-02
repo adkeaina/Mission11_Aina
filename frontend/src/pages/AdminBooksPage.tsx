@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchBooks } from "../api/BookAPI";
 import Header from "../components/Header";
 import Pagination from "../components/Pagination";
+import NewBookForm from "../components/NewBookForm";
 
 const AdminBooksPage = () => {
     const [books, setBooks] = useState<Book[]>([]);
@@ -13,6 +14,7 @@ const AdminBooksPage = () => {
     const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [showForm, setShowForm] = useState<boolean>(false);
 
     useEffect(() => {
         const loadBooks = async () => {
@@ -36,47 +38,67 @@ const AdminBooksPage = () => {
     }
 
     if (loading) {
-        return <p>Loading books...</p>;
+        return <div className="text-center mt-5"><p>Loading books...</p></div>;
     }
 
     if (error) {
-        return <p className="text-danger">Error: {error}</p>;
+        return <div className="text-center mt-5 text-danger"><p>Error: {error}</p></div>;
     }
 
     return (
-        <div>
+        <div className="container mt-4">
             <Header />
-            <h1>Admin Books</h1>
-            <table className="table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Author</th>
-                        <th>Publisher</th>
-                        <th>ISBN</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {books.map((book) => (
-                        <tr key={book.bookId}>
-                            <td>{book.bookId}</td>
-                            <td>{book.title}</td>
-                            <td>{book.author}</td>
-                            <td>{book.publisher}</td>
-                            <td>{book.isbn}</td>
-                            <td>
-                                <button className="btn btn-primary" onClick={() => alert('huzzah')}>Edit</button>
-                            </td>
-                            <td>
-                                <button className="btn btn-danger">Delete</button>
-                            </td>
+            <br />
+            <h1 className="mb-4">Admin Books</h1>
+
+            {showForm ?
+                <NewBookForm
+                    onSuccess={() => {
+                        setShowForm(false);
+                        fetchBooks(pageSize, pageNumber, []).then(data => {
+                            setBooks(data.books);
+                            setTotalPages(data.pageCount);
+                        });
+                    }} onCancel={() => setShowForm(false)}
+                />
+                :
+                <button className="btn btn-success mb-3" onClick={() => setShowForm(true)}>Add Book</button>
+            }
+            <br />
+
+            <div className="table-responsive">
+                <table className="table table-bordered table-striped">
+                    <thead className="thead-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Publisher</th>
+                            <th>ISBN</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {books.map((book) => (
+                            <tr key={book.bookId}>
+                                <td>{book.bookId}</td>
+                                <td>{book.title}</td>
+                                <td>{book.author}</td>
+                                <td>{book.publisher}</td>
+                                <td>{book.isbn}</td>
+                                <td>
+                                    <button className="btn btn-primary" onClick={() => alert('Edit functionality coming soon!')}>Edit</button>
+                                </td>
+                                <td>
+                                    <button className="btn btn-danger">Delete</button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
             <Pagination
                 totalPages={totalPages}
                 pageNumber={pageNumber}
@@ -85,7 +107,7 @@ const AdminBooksPage = () => {
                 setPageSize={setPageSize}
             />
         </div>
-    )
+    );
 }
 
 export default AdminBooksPage;
