@@ -78,10 +78,10 @@ public class BookController : ControllerBase
         return Ok(book);
     }
 
-    [HttpPut("UpdateBook/{bookId}")]
-    public IActionResult UpdateBook(int bookId, [FromBody] Book book)
+    [HttpPut("UpdateBook")]
+    public IActionResult UpdateBook([FromBody] Book book)
     {
-        var bookToUpdate = _context.Books.Find(bookId);
+        var bookToUpdate = _context.Books.Find(book.BookId);
         if (bookToUpdate is null)
         {
             return NotFound();
@@ -111,6 +111,7 @@ public class BookController : ControllerBase
         }
         _context.Books.Remove(bookToDelete);
         _context.SaveChanges();
+        
         return NoContent();
     }
 }

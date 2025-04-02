@@ -1,14 +1,15 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Book } from "../types/Book";
-import { addBook } from "../api/BookAPI";
+import { addBook, updateBook } from "../api/BookAPI";
 
 interface NewBookFormProps {
+    book: Book | null;
     onSuccess: () => void;
     onCancel: () => void;
 }
 
-export default function NewBookForm({ onSuccess, onCancel }: NewBookFormProps) {
-    const [formData, setFormData] = useState<Book>({
+export default function NewBookForm({ book, onSuccess, onCancel }: NewBookFormProps) {
+    const [formData, setFormData] = useState<Book>(book || {
         bookId: 0,
         title: "",
         author: "",
@@ -26,14 +27,18 @@ export default function NewBookForm({ onSuccess, onCancel }: NewBookFormProps) {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        await addBook(formData);
+        if (book) {
+            await updateBook(formData);
+        } else {
+            await addBook(formData);
+        }
         onSuccess();
     }
 
     return (
         <div className="container mt-4">
             <div className="card p-4 shadow-sm">
-                <h2 className="mb-4">Add New Book</h2>
+                <h2 className="mb-4">{book ? 'Update' : 'Add New'} Book</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="row mb-3">
                         <div className="col-md-6">
@@ -144,7 +149,7 @@ export default function NewBookForm({ onSuccess, onCancel }: NewBookFormProps) {
                     </div>
 
                     <div className="d-flex justify-content-between">
-                        <button type="submit" className="btn btn-success">Add Book</button>
+                        <button type="submit" className="btn btn-success">{book ? 'Update' : 'Add'} Book</button>
                         <button type="button" className="btn btn-secondary" onClick={onCancel}>Cancel</button>
                     </div>
                 </form>

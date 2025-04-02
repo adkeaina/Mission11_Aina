@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
 import { Book } from "../types/Book";
-import { useNavigate } from "react-router-dom";
-import { fetchBooks } from "../api/BookAPI";
+import { deleteBook, fetchBooks } from "../api/BookAPI";
 import Header from "../components/Header";
 import Pagination from "../components/Pagination";
 import NewBookForm from "../components/NewBookForm";
+import '../styles/AdminBooksPage.css';
 
 const AdminBooksPage = () => {
     const [books, setBooks] = useState<Book[]>([]);
     const [pageSize, setPageSize] = useState<number>(5);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(0);
-    const navigate = useNavigate();
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [showForm, setShowForm] = useState<boolean>(false);
+    const [editingBook, setEditingBook] = useState<Book | null>(null);
 
     useEffect(() => {
         const loadBooks = async () => {
@@ -33,9 +33,19 @@ const AdminBooksPage = () => {
         loadBooks();
     }, [pageSize, pageNumber]);
 
-    const handleEditBook = () => {
-        navigate('/admin/books/edit/1');
-    }
+    const handleDeleteBook = async (bookId: number) => {
+        const confirmDelete = window.confirm(
+            'Are you sure you want to delete this book?'
+        );
+        if (!confirmDelete) return;
+
+        try {
+            await deleteBook(bookId);
+            setBooks(books.filter((b) => b.bookId !== bookId));
+        } catch (error) {
+            alert('Failed to delete project. Please try again.');
+        }
+    };
 
     if (loading) {
         return <div className="text-center mt-5"><p>Loading books...</p></div>;
@@ -51,19 +61,7 @@ const AdminBooksPage = () => {
             <br />
             <h1 className="mb-4">Admin Books</h1>
 
-            {showForm ?
-                <NewBookForm
-                    onSuccess={() => {
-                        setShowForm(false);
-                        fetchBooks(pageSize, pageNumber, []).then(data => {
-                            setBooks(data.books);
-                            setTotalPages(data.pageCount);
-                        });
-                    }} onCancel={() => setShowForm(false)}
-                />
-                :
-                <button className="btn btn-success mb-3" onClick={() => setShowForm(true)}>Add Book</button>
-            }
+            <button className="btn btn-success mb-3" onClick={() => setShowForm(true)}>Add Book</button>
             <br />
 
             <div className="table-responsive">
@@ -88,10 +86,10 @@ const AdminBooksPage = () => {
                                 <td>{book.publisher}</td>
                                 <td>{book.isbn}</td>
                                 <td>
-                                    <button className="btn btn-primary" onClick={() => alert('Edit functionality coming soon!')}>Edit</button>
+                                    <button className="btn btn-primary" onClick={() => {setEditingBook(book); setShowForm(true);}}>Edit</button>
                                 </td>
                                 <td>
-                                    <button className="btn btn-danger">Delete</button>
+                                    <button className="btn btn-danger" onClick={() => handleDeleteBook(book.bookId)}>Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -106,6 +104,26 @@ const AdminBooksPage = () => {
                 setPageNumber={setPageNumber}
                 setPageSize={setPageSize}
             />
+
+            {showForm && (
+                <div className="overlay">
+                    <div className="edit-form-container">
+                        <NewBookForm
+                            book={editingBook}
+                            onSuccess={() => {
+                                setEditingBook(null);
+                                setShowForm(false);
+                                fetchBooks(pageSize, pageNumber, []).then(data => {
+                                    setBooks(data.books);
+                                    setTotalPages(data.pageCount);
+                                });
+                            }
+                            }
+                            onCancel={() => {setEditingBook(null); setShowForm(false);}}
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

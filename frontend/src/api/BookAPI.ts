@@ -51,3 +51,38 @@ export async function addBook(book: Book): Promise<Book> {
         throw new Error('Failed to add book');
     }
 }
+
+export async function updateBook(book: Book): Promise<Book> {
+    try {
+        const response = await fetch(`${apiBaseUrl}/UpdateBook`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(book),
+                credentials: 'include',
+            });
+        if (!response.ok) {
+            throw new Error('Failed to update book; wrong bookId or sumn');
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        throw new Error('Womp womp');
+    }
+}
+
+export async function deleteBook(bookId: number): Promise<void> {
+    try {
+        const response = await fetch(`${apiBaseUrl}/DeleteBook/${bookId}`, {
+                method: 'DELETE',
+            });
+        if (!response.ok) {
+            throw new Error('Failed to delete book');
+        }
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to delete book');
+    }
+}
