@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "undefined/subscriptions/a6e0154b-9f17-4717-adf5-2930e5bfac82/resourceGroups/appsvc_windows_centralus/providers/Microsoft.Web/sites/Mission13-Aina",
+    "appService.deploySubpath": "backend/Amazon.API/publish"
+}

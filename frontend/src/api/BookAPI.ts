@@ -5,7 +5,7 @@ interface FetchBooksResponse {
     pageCount: number;
 }
 
-const apiBaseUrl = 'https://localhost:5000/api/Book';
+const apiBaseUrl = 'https://mission13-aina.azurewebsites.net/api/Book';
 
 export async function fetchBooks(
     pageSize: number,
