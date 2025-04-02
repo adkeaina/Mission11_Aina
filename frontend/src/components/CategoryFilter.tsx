@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { fetchBookCategories } from "../api/BookAPI";
 
 export default function CategoryFilter({
     selectedCategories,
@@ -14,8 +15,7 @@ export default function CategoryFilter({
         try {
             // Fetch categories from an API or define them statically
             const fetchCategories = async () => {
-                const response = await fetch('https://localhost:5000/api/Book/GetBookCategories');
-                const data = await response.json();
+                const data = await fetchBookCategories();
                 setCategories(data);
             }
             fetchCategories();

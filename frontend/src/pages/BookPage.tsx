@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Book } from "../types/Book";
 import { useCart } from "../context/CartContext";
 import { CartItem } from "../types/CartItem";
+import { fetchBookById } from "../api/BookAPI";
 
 export default function BookPage() {
     const { bookId } = useParams();
@@ -13,10 +14,7 @@ export default function BookPage() {
 
     useEffect(() => {
         const fetchBook = async () => {
-            const response = await fetch(`https://localhost:5000/api/Book/GetBookById/${bookId}`, {
-                credentials: "include",
-            });
-            const data = await response.json();
+            const data = await fetchBookById(bookId);
             setBook(data);
         };
 

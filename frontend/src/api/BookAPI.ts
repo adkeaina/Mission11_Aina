@@ -31,6 +31,36 @@ export async function fetchBooks(
     }
 }
 
+export async function fetchBookById(bookId: string | undefined): Promise<Book> {
+    try {
+        const response = await fetch(`${apiBaseUrl}/GetBookById/${bookId}`, {
+                credentials: 'include',
+            });
+        if (!response.ok) {
+            throw new Error('Failed to fetch book');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to fetch book');
+    }
+}
+
+export async function fetchBookCategories(): Promise<string[]> {
+    try {
+        const response = await fetch(`${apiBaseUrl}/GetBookCategories`, {
+                credentials: 'include',
+            });
+        if (!response.ok) {
+            throw new Error('Failed to fetch book categories');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to fetch book categories');
+    }
+}
+
 export async function addBook(book: Book): Promise<Book> {
     try {
         const response = await fetch(`${apiBaseUrl}/AddBook`, {
